@@ -1,33 +1,67 @@
 package doaltoBienvenido;
 
 public class Tablero {
-    private char[][] casillas;
+    private Coordenada[][] fichas;
+
+    private final int DIMENSION = 3;
+    private final int JUGADORES = 2;
     private final char CASILLA_VACIA = '_';
 
     public Tablero() {
-        casillas = new char[3][3];
-
-        for (int i = 0; i < casillas.length; i++) {
-            for (int j = 0; j < casillas[i].length; j++) {
-                casillas[i][j] = CASILLA_VACIA;
-            }
-        }
+        fichas = new Coordenada[JUGADORES][DIMENSION];
     }
 
     public void mostrar() {
         limpiarPantalla();
-        for (int i = 0; i < casillas.length; i++) {
-            for (int j = 0; j < casillas[i].length; j++) {
-                System.out.print(" " + casillas[i][j]);
+        System.out.println("  1 2 3");
+        for (int i = 1; i <= DIMENSION; i++) {
+            System.out.print((i+1) + " ");
+            for (int j = 1; j <= DIMENSION; j++) {
+                System.out.print(this.getColor(new Coordenada(i, j)) + " ");
             }
             System.out.println();
         }
     }
 
-    private void limpiarPantalla() {
-        for (int i = 0; i < 100; i++) {
-            System.out.println();
+    private char getColor(Coordenada coordenada) {
+        if (this.estaOcupado(coordenada, 'x')) {
+            return 'x';
+        } else if (this.estaOcupado(coordenada, 'o')) {
+            return 'o';
         }
+        return CASILLA_VACIA;
+    }
+
+    private boolean estaOcupado(Coordenada coordenada, char color) {
+        int fila = this.getFila(color);
+        for (int i = 0; i < fichas[fila].length; i++) {
+            if (fichas[fila][i] != null && fichas[fila][i].igual(coordenada)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private int getFila(char color) {
+        if (color == 'o') {
+            return 0;
+        }
+        return 1;
+    }
+
+    public boolean estaCompleto(Jugador jugador) {
+        return estaCompleto(jugador.colorDeFicha());
+    }
+
+    private boolean estaCompleto(char color) {
+        int fila = getFila(color);
+        int conteoFichas = 0;
+        for (int i = 0; i < fichas[fila].length; i++) {
+            if (fichas[fila][i] != null) {
+                conteoFichas++;
+            }
+        }
+        return conteoFichas == DIMENSION;
     }
 
     public boolean hayTresEnRaya() {
@@ -35,61 +69,49 @@ public class Tablero {
     }
 
     private boolean hayTresEnRaya(char color) {
-        for (int i = 0; i < 3; i++) {
-            if (casillas[i][0] == color && casillas[i][1] == color && casillas[i][2] == color
-                && casillas[i][0] != CASILLA_VACIA) {
-                return true;
-            }
+        if (!estaCompleto(color)) {
+            return false;
         }
-
-        for (int j = 0; j < 3; j++) {
-            if (casillas[0][j] == color && casillas[1][j] == color && casillas[2][j] == color
-                && casillas[0][j] != CASILLA_VACIA) {
-                return true;
-            }
+        int fila = getFila(color);
+        int direccion = fichas[fila][0].direccion(fichas[fila][1]);
+        if (direccion == -1) {
+            return false;
         }
+        return direccion == fichas[fila][1].direccion(fichas[fila][2]);
 
-        if (casillas[0][0] == color && casillas[1][1] == color && casillas[2][2] == color
-            && casillas[0][0] != CASILLA_VACIA) {
-            return true;
-        }
-
-        if (casillas[0][2] == color && casillas[1][1] == color && casillas[2][0] == color
-            && casillas[0][2] != CASILLA_VACIA) {
-            return true;
-        }
-
-        return false;
-    }
-
-    public boolean estaCompleto(Jugador jugador) {
-        int conteoFichas = 0;
-        for (int i = 0; i < casillas.length; i++) {
-            for (int j = 0; j < casillas[i].length; j++) {
-                if (casillas[i][j] == jugador.colorDeFicha()) {
-                    conteoFichas++;
-                }
-            }
-        }
-        return conteoFichas == 3;
-    }
-
-    public boolean estaOcupado(Coordenada coordenada) {
-        return casillas[coordenada.fila()][coordenada.columna()] != CASILLA_VACIA;
     }
 
     public void ponerFicha(Coordenada coordenada, char color) {
-        if (!estaOcupado(coordenada)) {
-            casillas[coordenada.fila()][coordenada.columna()] = color;
+        int fila = getFila(color);
+        int i = 0;
+        while (fichas[fila][i] != null) {
+            i++;
         }
-    }
-
-    public void sacarFicha(Coordenada coordenada) {
-        casillas[coordenada.fila()][coordenada.columna()] = CASILLA_VACIA;
+        fichas[fila][i] = coordenada;
     }
 
     public boolean estaVacio(Coordenada coordenada) {
         return !estaOcupado(coordenada);
+    }
+
+    public boolean estaOcupado(Coordenada coordenada) {
+        return this.estaOcupado(coordenada, 'x') || this.estaOcupado(coordenada, 'o');
+    }
+
+    public void sacarFicha(Coordenada coordenada) {
+        for (int i = 0; i < fichas.length; i++) {
+            for (int j = 0; j < fichas[i].length; j++) {
+                if (fichas[i][j] != null && fichas[i][j].igual(coordenada)) {
+                    fichas[i][j] = null;
+                }
+            }
+        }
+    }
+
+    private void limpiarPantalla() {
+        for (int i = 0; i < 100; i++) {
+            System.out.println();
+        }
     }
 
 }

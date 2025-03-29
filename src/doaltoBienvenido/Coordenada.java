@@ -6,59 +6,56 @@ public class Coordenada {
 
     private int fila;
     private int columna;
-    private final int FILA_MINIMA = 0;
+    private final int FILA_MINIMA = 1;
     private final int FILA_MAXIMA = 3;
-    private final int COLUMNA_MINIMA = 0;
+    private final int COLUMNA_MINIMA = 1;
     private final int COLUMNA_MAXIMA = 3;
-
-    public Coordenada() {
-
-    }
 
     public Coordenada(int fila, int columna) {
         this.fila = fila;
         this.columna = columna;
+        assert this.esValida();
     }
 
-    public int fila() {
-        return fila;
-    }
-
-    public int columna() {
-        return columna;
-    }
-
-    public void fila(int fila) {
-        this.fila = fila;
-    }
-
-    public void columna(int columna) {
-        this.columna = columna;
-    }
-
-    public String toString() {
-        return fila + " , " + columna;
-    }
-
-    public boolean esValida() {
-        return fila >= FILA_MINIMA && fila < FILA_MAXIMA && columna >= COLUMNA_MINIMA && columna < COLUMNA_MAXIMA;
+    public Coordenada() {
     }
 
     public void pedir() {
-        Scanner scanner = new Scanner(System.in);
-        boolean esCordenadaValida;
-
         do {
-            System.out.println("Escriba una fila desde (0-2): ");
-            fila = scanner.nextInt();
+            System.out.print("> Fila? [1..3] ");
+            this.fila = new Scanner(System.in).nextInt();
+            System.out.print("> Columna? [1..3] ");
+            this.columna = new Scanner(System.in).nextInt();
+        } while (!this.esValida());
+    }
 
-            System.out.println("Escriba una columna desde (0-2): ");
-            columna = scanner.nextInt();
+    public boolean esValida() {
+        return (fila >= FILA_MINIMA && fila <= FILA_MAXIMA && columna >= COLUMNA_MINIMA && columna <= COLUMNA_MAXIMA);
+    }
 
-            esCordenadaValida = esValida();
-            if (!esCordenadaValida) {
-                System.out.println("Coordenada incorrecta");
-            }
-        } while (!esCordenadaValida);
+    public int getFila() {
+        return fila;
+    }
+
+    public int getColumna() {
+        return columna;
+    }
+
+    public boolean igual(Coordenada coordenada) {
+        return this.fila == coordenada.fila && this.columna == coordenada.columna;
+    }
+
+    public int direccion(Coordenada coordenada) {
+        if (fila == coordenada.fila) {
+            return 0;
+        } else if (columna == coordenada.columna) {
+            return 1;
+        } else if (fila - columna == 0 && coordenada.fila - coordenada.columna == 0) {
+            return 2;
+        } else if (fila + columna == 4 && coordenada.fila + coordenada.columna == 4) {
+            return 3;
+        } else {
+            return -1;
+        }
     }
 }
